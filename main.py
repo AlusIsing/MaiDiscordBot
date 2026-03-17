@@ -14,7 +14,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    if message.author != f"{env.master_discord_id}":
+    if f"{message.author}" != f"{env.master_discord_id}":
         return
     
     await bot.process_commands(message)
