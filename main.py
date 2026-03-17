@@ -12,6 +12,13 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 async def on_ready():
     print(f'{bot.user} online')
 
+@bot.event
+async def on_message(message):
+    if message.author != f"{env.master_discord_id}":
+        return
+    
+    await bot.process_commands(message)
+
 @bot.command()
 async def GetAnno(ctx):
     await ctx.send("""hier ist ein discord bot""")
