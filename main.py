@@ -17,7 +17,18 @@ async def on_message(message):
     if f"{message.author}" != f"{env.master_discord_id}":
         return
     
-    await bot.process_commands(message)
+    text = f"{message.content}"
+    
+    cmd = text.split()
+
+    if cmd[0] == "麻衣小姐":
+        await MaiCmd(cmd, message)
+    else:
+        await bot.process_commands(message)
+
+async def MaiCmd(cmd, message):
+    if cmd[1] == "Call0AD":
+        await bot.invoke(bot.get_command("Call0AD"), message)
 
 @bot.command()
 async def GetAnno(ctx):
