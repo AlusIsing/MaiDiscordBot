@@ -27,7 +27,7 @@ async def on_message(message):
         await bot.process_commands(message)
 
 async def MaiCmd(cmd, message):
-    if cmd[1] == "Call0AD":
+    if cmd[1] == "請幫我找人打0AD":
         action = bot.get_command("Call0AD")
         ctx = await bot.get_context(message)
         await ctx.invoke(action)
