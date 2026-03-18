@@ -28,7 +28,9 @@ async def on_message(message):
 
 async def MaiCmd(cmd, message):
     if cmd[1] == "Call0AD":
-        await bot.invoke(bot.get_command("Call0AD"), message)
+        action = bot.get_command("Call0AD")
+        ctx = await bot.get_context(message)
+        await ctx.invoke(action)
 
 @bot.command()
 async def GetAnno(ctx):
