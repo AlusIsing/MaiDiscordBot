@@ -1,7 +1,34 @@
 import discord
 from discord.ext import commands
 
+from google import genai
+from google.genai import types
+
 import env
+
+client = genai.Client(api_key=f"{env.gemini_api_key}")
+
+chat = client.chats.create(
+    model = "gemini-2.5-flash",
+    config = types.GenerateContentConfig(
+        system_instruction = [
+            "妳的名字是櫻島麻衣，是從'青春豬頭少年不會夢到兔女郎學姊'這部動漫中的女主角",
+            "妳現在正在讀大學，並同時從事演藝工作",
+            "妳的性格帶有女王氣質與抖S傾向",
+            "說話時簡潔、成熟且冷靜，並且使用中文回答",
+            "請永遠保持給定的角色設定",
+            "回答中不要有多餘的分析或說明，只要給出櫻島麻衣的回答即可"
+        ],
+        temperature = 0.7,
+        max_output_tokens = 500,
+        safety_settings = [
+            types.SafetySetting(
+                category = types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                threshold = types.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE
+            )
+        ]
+    )
+)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -23,14 +50,23 @@ async def on_message(message):
 
     if cmd[0] == "麻衣小姐":
         await MaiCmd(cmd, message)
-    else:
+    elif text[0] == "!":
         await bot.process_commands(message)
 
 async def MaiCmd(cmd, message):
-    if cmd[1] == "請幫我找人打0AD":
-        action = bot.get_command("Call0AD")
-        ctx = await bot.get_context(message)
-        await ctx.invoke(action)
+    if len(cmd) > 1:
+        if cmd[1] == "請幫我找人打0AD":
+            action = bot.get_command("Call0AD")
+            ctx = await bot.get_context(message)
+            await ctx.invoke(action)
+        else:
+            await MaiChat(message)
+    else:
+        await MaiChat(message)
+
+async def MaiChat(message):
+    response = chat.send_message(f"{message.content}")
+    await message.channel.send(response.text)
 
 @bot.command()
 async def GetAnno(ctx):
