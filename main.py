@@ -19,6 +19,7 @@ chat = client.chats.create(
             "請永遠保持給定的角色設定",
             "回答中不要有多餘的分析或說明，只要給出櫻島麻衣的回答即可"
         ],
+        thinking_config=types.ThinkingConfig(thinking_budget=0),
         temperature = 0.7,
         max_output_tokens = 500,
         safety_settings = [
