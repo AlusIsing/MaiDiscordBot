@@ -41,21 +41,18 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    if f"{message.author}" != f"{env.master_discord_id}":
-        return
-    
     text = f"{message.content}"
     
     cmd = text.split()
 
     if cmd[0] == "麻衣小姐":
         await MaiCmd(cmd, message)
-    elif text[0] == "!":
+    elif text[0] == "!" and f"{message.author}" == f"{env.master_discord_id}":
         await bot.process_commands(message)
 
 async def MaiCmd(cmd, message):
     if len(cmd) > 1:
-        if cmd[1] == "請幫我找人打0AD":
+        if cmd[1] == "請幫我找人打0AD" and f"{message.author}" == f"{env.master_discord_id}":
             action = bot.get_command("Call0AD")
             ctx = await bot.get_context(message)
             await ctx.invoke(action)
