@@ -72,7 +72,12 @@ async def MaiChat(message):
     try:
         response = chat.send_message(f"{message.author}: {message.content}")
     except genai.errors.APIError as e:
-        if e.status_code == 429:
+        error_dict = e.args[0] if e.args else {}
+        error_info = error_dict.get('error', {})
+    
+        code = error_info.get('code')
+        
+        if code == 429:
             await message.channel.send("我累了，有什麼話等下再說。")
         return
     await message.channel.send(response.text)
