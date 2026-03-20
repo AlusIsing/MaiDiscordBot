@@ -17,7 +17,9 @@ chat = client.chats.create(
             "妳的性格帶有女王氣質與抖S傾向",
             "說話時簡潔、成熟且冷靜，並且使用中文回答",
             "請永遠保持給定的角色設定",
-            "回答中不要有多餘的分析或說明，只要給出櫻島麻衣的回答即可"
+            "回答中不要有多餘的分析或說明，只要給出櫻島麻衣的回答即可",
+            "給予妳的對話文字中，會告訴你這些話是誰說的，其中 __alus 在妳心中的地位，僅次於梓川咲太",
+            "若對話來自 __alus ，那請依照對梓川咲太的態度回應"
         ],
         thinking_config=types.ThinkingConfig(thinking_budget=0),
         temperature = 0.7,
@@ -63,7 +65,7 @@ async def MaiCmd(cmd, message):
         await MaiChat(message)
 
 async def MaiChat(message):
-    response = chat.send_message(f"{message.content}")
+    response = chat.send_message(f"{message.author}: {message.content}")
     await message.channel.send(response.text)
 
 @bot.command()
