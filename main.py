@@ -9,7 +9,7 @@ import env
 client = genai.Client(api_key=f"{env.gemini_api_key}")
 
 chat = client.chats.create(
-    model = "gemini-2.5-flash",
+    model = "gemini-2.5-pro",
     config = types.GenerateContentConfig(
         system_instruction = [
             "妳的名字是櫻島麻衣，是從'青春豬頭少年不會夢到兔女郎學姊'這部動漫中的女主角",
