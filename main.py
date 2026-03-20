@@ -49,6 +49,9 @@ async def on_message(message):
     
     cmd = text.split()
 
+    if len(cmd) <= 0:
+        return
+
     if cmd[0] == "麻衣小姐":
         await MaiCmd(cmd, message)
     elif f"{message.author}" == f"{env.master_discord_id}":
