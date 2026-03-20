@@ -51,7 +51,7 @@ async def on_message(message):
 
     if cmd[0] == "麻衣小姐":
         await MaiCmd(cmd, message)
-    elif text[0] == "!" and f"{message.author}" == f"{env.master_discord_id}":
+    elif f"{message.author}" == f"{env.master_discord_id}":
         await bot.process_commands(message)
 
 async def MaiCmd(cmd, message):
