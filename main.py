@@ -69,7 +69,12 @@ async def MaiCmd(cmd, message):
         await MaiChat(message)
 
 async def MaiChat(message):
-    response = chat.send_message(f"{message.author}: {message.content}")
+    try:
+        response = chat.send_message(f"{message.author}: {message.content}")
+    except genai.errors.APIError as e:
+        if e.status_code == 429:
+            await message.channel.send("我累了，有什麼話等下再說。")
+        return
     await message.channel.send(response.text)
 
 @bot.command()
