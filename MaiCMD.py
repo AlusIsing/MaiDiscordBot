@@ -1,1 +1,2 @@
-NewClock = 0
+MaiPrefix = "麻衣小姐"
+MaxChatHistoryAmount = 5

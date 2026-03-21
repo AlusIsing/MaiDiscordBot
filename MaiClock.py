@@ -7,14 +7,17 @@ clocks = {}
 class MaiClock:
     def __init__(self):
         self.time = time.time()
-        self.date = datetime.datetime.now().date()
+        self.date = datetime.datetime.now()
         self.content = ""
         self.channel_id = -1
         self._clock_func = None
         self.id = -1
     
     def start(self):
-        self._clock()
+        asyncio.create_task(self._clock())
+
+    def set_id(self, id):
+        self.id = id
 
     def set_time(self, time):
         self.time = time
@@ -32,20 +35,40 @@ class MaiClock:
         self._clock_func = func
 
     async def _clock(self):
-        while self.time <= time.time():
-            await asyncio.sleep(1)
+        try:
+            now = datetime.datetime.now()
+            now = now.replace(second=0)
+
+            target_time = self.date
+            target_time = target_time.replace(hour=self.time.tm_hour, minute=self.time.tm_min, second=0)
+
+            print(f"{now.strftime('%Y/%m/%d %H:%M')} {target_time.strftime('%Y/%m/%d %H:%M')}")
+            while now <= target_time:
+                await asyncio.sleep(1)
+                now = datetime.datetime.now()
+                now.replace(second=0)
+
+        except Exception as e:
+            print(f"clock err: {e}")
+            print(f"{now.strftime('%Y/%m/%d %H:%M')} {target_time.strftime('%Y/%m/%d %H:%M')}")
 
         if self._clock_func is not None:
             await self._clock_func(self)
         
         clocks.pop(self.id)
 
-def new_mai_clock(id, time, date, content, channel_id, clock_func):
+    def get_clock_date(self):
+        return f"{self.id} {self.date.year}/{self.date.month}/{self.date.day} {self.time.tm_hour}:{self.time.tm_min} {self.content}"
+
+def new_mai_clock(id, cmd_time, date, content, channel_id, clock_func):
     clock = MaiClock()
-    clock.set_time(time)
-    clock.set_date(date)
+    clock.set_id(id)
+    clock.set_time(time.strptime(cmd_time, "%H:%M"))
+    clock.set_date(datetime.datetime.strptime(date, "%Y/%m/%d"))
     clock.set_content(content)
     clock.set_channnel_id(channel_id)
     clock.set_clock_func(clock_func)
     clocks[id] = clock
     clock.start()
+
+    print(clock.get_clock_date())
