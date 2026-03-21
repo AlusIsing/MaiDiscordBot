@@ -5,6 +5,11 @@ from google import genai
 from google.genai import types
 from google.genai.errors import APIError
 
+import MaiClock
+from MaiClock import MaiClock, clocks
+
+from MaiCMD import *
+
 import env
 
 client = genai.Client(api_key=f"{env.gemini_api_key}")
@@ -99,5 +104,18 @@ async def Call0AD(ctx):
     role_mentions = [member.mention for member in role.members if member is not member.bot]
     
     await ctx.send(f"{' '.join(role_mentions)}\n要不要打0AD")
+
+@bot.command()
+async def CheckClock(ctx):
+    text = f"{clocks.keys()}"
+    text = text[1: -1]
+    text = text.split(", ")
+    text = "\n".join(text)
+    
+    await ctx.send(f"clock list new:\n{text}")
+
+async def clock_func(clock: MaiClock):
+    channel = bot.get_channel(clock.channel_id)
+    await channel.send(f"{clock.content}")
 
 bot.run(f"{env.bot_key}")
