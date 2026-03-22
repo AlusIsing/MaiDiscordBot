@@ -1,14 +1,17 @@
 import asyncio
 import time
-import datetime
+from datetime import datetime, timezone, timedelta
 from sys import stderr
+
+from MaiCMD import *
 
 clocks = {}
 
 class MaiClock:
     def __init__(self):
+        self.time_zone = timezone(offset=timedelta(hours=8))
         self.time = time.time()
-        self.date = datetime.datetime.now()
+        self.date = datetime.now(tz=self.time_zone)
         self.content = ""
         self.channel_id = -1
         self._clock_func = None
@@ -37,7 +40,7 @@ class MaiClock:
 
     async def _clock(self):
         try:
-            now = datetime.datetime.now()
+            now = datetime.now(tz=self.time_zone)
             now = now.replace(second=0)
 
             target_time = self.date
@@ -46,7 +49,7 @@ class MaiClock:
             print(f"{now.strftime('%Y/%m/%d %H:%M')} {target_time.strftime('%Y/%m/%d %H:%M')}", file=stderr)
             while now <= target_time:
                 await asyncio.sleep(1)
-                now = datetime.datetime.now()
+                now = datetime.now(tz=self.time_zone)
                 now.replace(second=0)
 
         except Exception as e:
@@ -65,7 +68,7 @@ def new_mai_clock(id, cmd_time, date, content, channel_id, clock_func):
     clock = MaiClock()
     clock.set_id(id)
     clock.set_time(time.strptime(cmd_time, "%H:%M"))
-    clock.set_date(datetime.datetime.strptime(date, "%Y/%m/%d"))
+    clock.set_date(datetime.strptime(date, "%Y/%m/%d"))
     clock.set_content(content)
     clock.set_channnel_id(channel_id)
     clock.set_clock_func(clock_func)
