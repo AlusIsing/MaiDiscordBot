@@ -68,8 +68,18 @@ class MaiClock:
 def new_mai_clock(id, cmd_time, date, content, channel_id, clock_func):
     clock = MaiClock()
     clock.set_id(id)
-    clock.set_time(time.strptime(cmd_time, "%H:%M"))
-    clock.set_date(datetime.strptime(date, "%Y/%m/%d"))
+    try:
+        clock.set_time(time.strptime(cmd_time, "%H:%M"))
+    except Exception as e:
+        print(f"set time err: {e}", file=stderr)
+        return
+    
+    try:
+        clock.set_date(datetime.strptime(date, "%Y/%m/%d"))
+    except Exception as e:
+        print(f"set date err: {e}", file=stderr)
+        return
+
     clock.set_content(content)
     clock.set_channnel_id(channel_id)
     clock.set_clock_func(clock_func)
