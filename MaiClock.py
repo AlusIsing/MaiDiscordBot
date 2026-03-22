@@ -1,6 +1,7 @@
 import asyncio
 import time
 import datetime
+from sys import stderr
 
 clocks = {}
 
@@ -42,15 +43,15 @@ class MaiClock:
             target_time = self.date
             target_time = target_time.replace(hour=self.time.tm_hour, minute=self.time.tm_min, second=0)
 
-            print(f"{now.strftime('%Y/%m/%d %H:%M')} {target_time.strftime('%Y/%m/%d %H:%M')}")
+            print(f"{now.strftime('%Y/%m/%d %H:%M')} {target_time.strftime('%Y/%m/%d %H:%M')}", file=stderr)
             while now <= target_time:
                 await asyncio.sleep(1)
                 now = datetime.datetime.now()
                 now.replace(second=0)
 
         except Exception as e:
-            print(f"clock err: {e}")
-            print(f"{now.strftime('%Y/%m/%d %H:%M')} {target_time.strftime('%Y/%m/%d %H:%M')}")
+            print(f"clock err: {e}", file=stderr)
+            print(f"{now.strftime('%Y/%m/%d %H:%M')} {target_time.strftime('%Y/%m/%d %H:%M')}", file=stderr)
 
         if self._clock_func is not None:
             await self._clock_func(self)
@@ -71,4 +72,4 @@ def new_mai_clock(id, cmd_time, date, content, channel_id, clock_func):
     clocks[id] = clock
     clock.start()
 
-    print(clock.get_clock_date())
+    print(clock.get_clock_date(), file=stderr)

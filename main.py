@@ -1,5 +1,6 @@
 import json
 import datetime
+from sys import stderr
 
 import discord
 from discord.ext import commands
@@ -67,7 +68,7 @@ bot = commands.Bot(command_prefix=MaiPrefix, intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'{bot.user} online')
+    print(f'{bot.user} online', file=stderr)
 
 @bot.event
 async def on_message(message):
@@ -113,11 +114,11 @@ async def MaiChat(message):
         if e.code == 429:
             await message.channel.send("我累了，有什麼話等下再說。")
         else:
-            print("unknow err")
-            print(e)
+            print("unknow err", file=stderr)
+            print(e, file=stderr)
         return
     except json.JSONDecodeError as e:
-        print(f"json err\nresponse text:\n{response.text}")
+        print(f"json err\nresponse text:\n{response.text}", file=stderr)
         return
 
 @bot.command()
