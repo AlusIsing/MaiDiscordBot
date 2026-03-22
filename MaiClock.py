@@ -26,8 +26,9 @@ class MaiClock:
     def set_time(self, time):
         self.time = time
 
-    def set_date(self, date):
+    def set_date(self, date: datetime):
         self.date = date
+        self.date = self.date.replace(tzinfo=self.time_zone)
 
     def set_content(self, content):
         self.content = content
