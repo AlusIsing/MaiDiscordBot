@@ -1,5 +1,6 @@
 import json
 import datetime
+from datetime import datetime, timezone, timedelta
 from sys import stderr
 
 import discord
@@ -15,6 +16,8 @@ from MaiClock import MaiClock, clocks, new_mai_clock
 from MaiCMD import *
 
 import env
+
+time_taiwan = timezone(offset=timedelta(hours=8))
 
 client = genai.Client(api_key=f"{env.gemini_api_key}")
 
@@ -100,7 +103,7 @@ async def MaiChat(message):
         if len(chat.get_history()) > MaxChatHistoryAmount * 2:
             chat.history = chat.get_history()[:-MaxChatHistoryAmount * 2]
         
-        response = chat.send_message(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M')} {message.author}: {message.content}")
+        response = chat.send_message(f"{datetime.now(tz=time_taiwan).strftime('%Y-%m-%d %H:%M')} {message.author}: {message.content}")
         response_json = json.loads(response.text)
         
         response_text = response_json["text"]
