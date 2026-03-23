@@ -9,7 +9,7 @@ clocks = {}
 
 class MaiClock:
     def __init__(self):
-        self.time_zone = timezone(offset=timedelta(hours=8))
+        self.time_zone = timezone(offset=timedelta(hours=UtcOffset))
         self.time = time.time()
         self.date = datetime.now(tz=self.time_zone)
         self.content = ""
