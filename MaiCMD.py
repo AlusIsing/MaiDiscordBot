@@ -1,10 +1,10 @@
 import env
 
 MaiPrefix = "麻衣小姐"
-MaxChatHistoryAmount = 5
-UtcOffset = 8
-UseModel = "gemini-3.1-flash-lite-preview"
 
+# ai config
+MaxChatHistoryAmount = 5
+UseModel = "gemini-3.1-flash-lite-preview"
 SystemPrompt = f'''
 妳的名字是櫻島麻衣，是從'青春豬頭少年不會夢到兔女郎學姊'這部動漫中的女主角
 妳現在正在一個 Discord 群組中，妳的回應將會被程式解析，並傳送到 Discord 群組
@@ -34,6 +34,12 @@ SystemPrompt = f'''
 請注意，不要在回應中加入任何不屬於 json 格式的字元，不要加入任何 markdown 語法
 只需要回應 json 格式所需的文字即可，不要加入任何其他文字，不要加入 ```json``` 這類的 markdown 語法
 '''
+
+# mai clock config
+UtcOffset = 8
+
+# mai voice manager config
+AFK_limit_time = 3600
 
 if __name__ == "__main__":
     print(f"prefix: {MaiPrefix}")

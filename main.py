@@ -13,6 +13,7 @@ import MaiClock
 from MaiClock import MaiClock, clocks, new_mai_clock
 
 from MaiCMD import *
+from MaiVoiceManager import MaiVoiceManager
 
 import env
 
@@ -43,6 +44,8 @@ intents.message_content = True
 intents.members = True
 bot = commands.Bot(command_prefix=MaiPrefix, intents=intents)
 
+mai_voice_manager = MaiVoiceManager(bot)
+
 @bot.event
 async def on_ready():
     print(f'{bot.user} online', file=stderr)
@@ -60,6 +63,17 @@ async def on_message(message):
         await MaiCmd(cmd, message)
     elif f"{message.author}" == f"{env.master_discord_id}":
         await bot.process_commands(message)
+
+@bot.event
+async def on_voice_state_update(member, before, after):
+    if member.bot:
+        return
+    
+    if before.channel == after.channel or before.channel == None and after.channel == None:
+        return
+    
+    mai_voice_manager.check_channel(before.channel)
+    mai_voice_manager.check_channel(after.channel)
 
 async def MaiCmd(cmd, message):
     if len(cmd) > 1:
@@ -106,10 +120,6 @@ async def MaiChat(message):
         return
 
 @bot.command()
-async def GetAnno(ctx):
-    await ctx.send("""hier ist ein discord bot""")
-
-@bot.command()
 async def test(ctx):
     text = f"CMD: {ctx.command.name}\n"
     text += f"Author: {ctx.author}\n"
@@ -149,6 +159,15 @@ async def SeeClock(ctx, *, id):
         await ctx.send(text)
     else:
         await ctx.send(f"no clock: {id}")
+
+@bot.command()
+async def SwitchVoiceManager(ctx):
+    if mai_voice_manager.running:
+        mai_voice_manager.close()
+    else:
+        mai_voice_manager.open()
+    
+    await ctx.send(f"語音頻道管理: {'開啟' if mai_voice_manager.running else '關閉'}")
 
 async def clock_func(clock: MaiClock):
     channel = bot.get_channel(clock.channel_id)
