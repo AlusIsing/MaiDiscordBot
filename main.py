@@ -80,8 +80,6 @@ async def MaiChat(message):
         message_no_prefix = list(str(message.content).split(" "))[1:]
         message_no_prefix = " ".join(message_no_prefix)
 
-        print(message_no_prefix)
-        
         response = chat.send_message(f"{datetime.now(tz=time_taiwan).strftime('%Y-%m-%d %H:%M')} {message.author}: {message_no_prefix}")
         response_json = json.loads(response.text)
         
@@ -104,6 +102,7 @@ async def MaiChat(message):
         return
     except Exception as e:
         print(f"unknow err: {e}", file=stderr)
+        print(f"message: {message_no_prefix}")
         return
 
 @bot.command()
