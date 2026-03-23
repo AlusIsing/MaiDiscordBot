@@ -76,8 +76,13 @@ async def MaiChat(message):
     try:
         if len(chat.get_history()) > MaxChatHistoryAmount * 2:
             chat.history = chat.get_history()[:-MaxChatHistoryAmount * 2]
+
+        message_no_prefix = list(str(message.content).split(" "))[1:]
+        message_no_prefix = " ".join(message_no_prefix)
+
+        print(message_no_prefix)
         
-        response = chat.send_message(f"{datetime.now(tz=time_taiwan).strftime('%Y-%m-%d %H:%M')} {message.author}: {message.content}")
+        response = chat.send_message(f"{datetime.now(tz=time_taiwan).strftime('%Y-%m-%d %H:%M')} {message.author}: {message_no_prefix}")
         response_json = json.loads(response.text)
         
         response_text = response_json["text"]
@@ -91,11 +96,14 @@ async def MaiChat(message):
         if e.code == 429:
             await message.channel.send("我累了，有什麼話等下再說。")
         else:
-            print("unknow err", file=stderr)
+            print("unknow API err", file=stderr)
             print(e, file=stderr)
         return
     except json.JSONDecodeError as e:
         print(f"json err\nresponse text:\n{response.text}", file=stderr)
+        return
+    except Exception as e:
+        print(f"unknow err: {e}", file=stderr)
         return
 
 @bot.command()
