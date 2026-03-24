@@ -3,6 +3,7 @@ from datetime import datetime
 from sys import stderr
 
 from discord.ext import commands
+from discord import Guild
 
 from MaiCMD import *
 
@@ -13,13 +14,23 @@ class MaiVoiceManager:
         self.guilds = set()
         self.targets = {}
     
-    def open(self, guild):
+    def open(self, guild: Guild):
+        if guild is None:
+            return
+        
         if guild.id in self.guilds:
             return
         
         self.guilds.add(guild.id)
+
+        voice_channels = guild.voice_channels
+        for i in voice_channels:
+            self.check_channel(i)
     
     def close(self, guild):
+        if guild is None:
+            return
+        
         if guild.id in self.guilds:
             self.guilds.remove(guild.id)
 
