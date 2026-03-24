@@ -8,22 +8,26 @@ from MaiCMD import *
 
 class MaiVoiceManager:
     def __init__(self, bot: commands.Bot):
-        self.running = False
         self.bot = bot
         self.limit_time = AFK_limit_time
+        self.guilds = set()
         self.targets = {}
     
-    def open(self):
-        self.running = True
+    def open(self, guild):
+        if guild.id in self.guilds:
+            return
+        
+        self.guilds.add(guild.id)
     
-    def close(self):
-        self.running = False
+    def close(self, guild):
+        if guild.id in self.guilds:
+            self.guilds.remove(guild.id)
+
+    def run_on(self, guild):
+        return guild.id in self.guilds
 
     def check_channel(self, channel):
         if channel is None:
-            return
-        
-        if not self.running:
             return
         
         members = [m for m in channel.members if not m.bot]
@@ -32,26 +36,32 @@ class MaiVoiceManager:
             self.remove_target(channel)
             return
         
-        self.new_target(channel)
+        self.new_target(channel, channel.guild)
     
-    def new_target(self, channel):
+    def new_target(self, channel, guild):
         self.targets[channel.id] = datetime.now()
-        asyncio.create_task(self.start_timing(channel.id))
+        asyncio.create_task(self.start_timing(channel.id, guild.id))
     
     def remove_target(self, channel):
         if channel.id in self.targets:
             self.targets.pop(channel.id)
     
-    async def start_timing(self, id):
-        def if_need_continue(id):
-            if id in self.targets:
-                if (datetime.now() - self.targets[id]).total_seconds() < self.limit_time:
-                    return True
+    async def start_timing(self, id, guild_id):
+        def if_need_continue():
+            if guild_id in self.guilds:
+                if id in self.targets:
+                    if (datetime.now() - self.targets[id]).total_seconds() < self.limit_time:
+                        return True
             
             return False
         
-        while if_need_continue(id) and self.running:
+        while if_need_continue():
             await asyncio.sleep(1)
+
+        if guild_id not in self.guilds:
+            if id in self.targets:
+                self.targets.pop(id)
+            return
 
         if id in self.targets:
             await self.remove_member(id)

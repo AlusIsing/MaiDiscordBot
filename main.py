@@ -162,12 +162,12 @@ async def SeeClock(ctx, *, id):
 
 @bot.command()
 async def SwitchVoiceManager(ctx):
-    if mai_voice_manager.running:
-        mai_voice_manager.close()
+    if mai_voice_manager.run_on(ctx.guild):
+        mai_voice_manager.close(ctx.guild)
     else:
-        mai_voice_manager.open()
+        mai_voice_manager.open(ctx.guild)
     
-    await ctx.send(f"語音頻道管理: {'開啟' if mai_voice_manager.running else '關閉'}")
+    await ctx.send(f"語音頻道管理: {'開啟' if mai_voice_manager.run_on(ctx.guild) else '關閉'}")
 
 async def clock_func(clock: MaiClock):
     channel = bot.get_channel(clock.channel_id)
