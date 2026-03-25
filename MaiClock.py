@@ -62,7 +62,7 @@ class MaiClock:
         
         clocks.pop(self.id)
 
-    def get_clock_date(self):
+    def get_clock_data(self):
         return f"{self.id} {self.date.year}/{self.date.month}/{self.date.day} {self.time.tm_hour}:{self.time.tm_min} {self.content}"
 
 def new_mai_clock(id, cmd_time, date, content, channel_id, clock_func):
@@ -86,4 +86,4 @@ def new_mai_clock(id, cmd_time, date, content, channel_id, clock_func):
     clocks[id] = clock
     clock.start()
 
-    print(clock.get_clock_date(), file=stderr)
+    print(clock.get_clock_data(), file=stderr)

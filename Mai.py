@@ -89,7 +89,13 @@ class Mai:
     
     async def clock_func(self, clock):
         channel = self.bot.get_channel(clock.channel_id)
-        await channel.send(f"{clock.content}")
+        try:
+            await channel.send(f"{clock.content}")
+        except Exception as e:
+            print(f"err while trig clock: {e}")
+            print(f"clock data: {clock.get_clock_data}")
+            return
+        self.append_history(channel.guild.id, "", f"{clock.content}")
 
     def check_history_legal(self, guild_id):
         if guild_id not in self.histories.keys():
