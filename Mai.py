@@ -41,7 +41,7 @@ class Mai:
         try:
             guild_id = message.guild.id
             
-            self.chat.history = self.histories[guild_id]
+            self.chat.history = self.get_history(guild_id)
 
             message_no_prefix = list(str(message.content).split(" "))[1:]
             message_no_prefix = " ".join(message_no_prefix)
@@ -71,7 +71,7 @@ class Mai:
             return
         except Exception as e:
             print(f"unknow err: {e}", file=stderr)
-            print(f"message: {message_no_prefix}", file=stderr)
+            print(f"message: {message_str}", file=stderr)
             return
     
     def SolveCmd(self, cmd, channel_id):
@@ -100,6 +100,15 @@ class Mai:
             else:
                 if self.histories[guild_id][i].role != "user":
                     raise f"illegal chat history: {guild_id}"
+                
+    def get_history(self, guild_id):
+        if guild_id not in self.histories.keys():
+            self.histories[guild_id] = []
+
+        if len(self.histories[guild_id]) > MaxChatHistoryAmount * 2:
+            self.histories[guild_id] = self.histories[guild_id][:-MaxChatHistoryAmount * 2]
+        
+        return self.histories[guild_id]
     
     def append_history(self, guild_id, user_text, model_text):
         if guild_id not in self.histories.keys():
@@ -111,7 +120,7 @@ class Mai:
         )
         model_msg = types.Content(
             role="model", 
-            parts=[types.Part(text=f"{model_text}")]
+            parts=[types.Part(text=model_text)]
         )
 
         self.histories[guild_id].extend([user_msg, model_msg])
