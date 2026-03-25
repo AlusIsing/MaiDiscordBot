@@ -12,12 +12,12 @@ from google.genai.errors import APIError
 import MaiClock
 from MaiClock import MaiClock, clocks, new_mai_clock
 
-from MaiCMD import *
+from MaiConfig import *
 from MaiVoiceManager import MaiVoiceManager
 
 import env
 
-time_taiwan = timezone(offset=timedelta(hours=8))
+time_taiwan = timezone(offset=timedelta(hours=UtcOffset))
 
 client = genai.Client(api_key=f"{env.gemini_api_key}")
 

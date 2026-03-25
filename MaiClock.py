@@ -3,7 +3,7 @@ import time
 from datetime import datetime, timezone, timedelta
 from sys import stderr
 
-from MaiCMD import *
+from MaiConfig import *
 
 clocks = {}
 

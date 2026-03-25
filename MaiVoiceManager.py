@@ -5,7 +5,7 @@ from sys import stderr
 from discord.ext import commands
 from discord import Guild
 
-from MaiCMD import *
+from MaiConfig import *
 
 class MaiVoiceManager:
     def __init__(self, bot: commands.Bot):
