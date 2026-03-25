@@ -1,48 +1,21 @@
-import json
-from datetime import datetime, timezone, timedelta
 from sys import stderr
 
 import discord
 from discord.ext import commands
 
-from google import genai
-from google.genai import types
-from google.genai.errors import APIError
-
-import MaiClock
-from MaiClock import MaiClock, clocks, new_mai_clock
-
 from MaiConfig import *
+from Mai import Mai
+from MaiClock import clocks
 from MaiVoiceManager import MaiVoiceManager
 
 import env
-
-time_taiwan = timezone(offset=timedelta(hours=UtcOffset))
-
-client = genai.Client(api_key=f"{env.gemini_api_key}")
-
-chat = client.chats.create(
-    model = UseModel,
-    config = types.GenerateContentConfig(
-        system_instruction = [
-            SystemPrompt
-        ],
-        thinking_config=types.ThinkingConfig(thinking_budget=0),
-        temperature = 0.7,
-        max_output_tokens = 500,
-        safety_settings = [
-            types.SafetySetting(
-                category = types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-                threshold = types.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE
-            )
-        ]
-    )
-)
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 bot = commands.Bot(command_prefix=MaiPrefix, intents=intents)
+
+mai = Mai(bot)
 
 mai_voice_manager = MaiVoiceManager(bot)
 
@@ -82,42 +55,9 @@ async def MaiCmd(cmd, message):
             ctx = await bot.get_context(message)
             await ctx.invoke(action)
         else:
-            await MaiChat(message)
+            await mai.send(message)
     else:
-        await MaiChat(message)
-
-async def MaiChat(message):
-    try:
-        if len(chat.get_history()) > MaxChatHistoryAmount * 2:
-            chat.history = chat.get_history()[:-MaxChatHistoryAmount * 2]
-
-        message_no_prefix = list(str(message.content).split(" "))[1:]
-        message_no_prefix = " ".join(message_no_prefix)
-
-        response = chat.send_message(f"{datetime.now(tz=time_taiwan).strftime('%Y-%m-%d %H:%M')} {message.author}: {message_no_prefix}")
-        response_json = json.loads(response.text)
-        
-        response_text = response_json["text"]
-
-        if "cmd" in response_json:
-            response_cmd = response_json["cmd"]
-            SolveCmd(response_cmd, message.channel.id)
-
-        await message.channel.send(response_text)
-    except APIError as e:
-        if e.code == 429:
-            await message.channel.send("我累了，有什麼話等下再說。")
-        else:
-            print("unknow API err", file=stderr)
-            print(e, file=stderr)
-        return
-    except json.JSONDecodeError as e:
-        print(f"json err\nresponse text:\n{response.text}", file=stderr)
-        return
-    except Exception as e:
-        print(f"unknow err: {e}", file=stderr)
-        print(f"message: {message_no_prefix}")
-        return
+        await mai.send(message)
 
 @bot.command()
 async def test(ctx):
@@ -168,21 +108,6 @@ async def SwitchVoiceManager(ctx):
         mai_voice_manager.open(ctx.guild)
     
     await ctx.send(f"語音頻道管理: {'開啟' if mai_voice_manager.run_on(ctx.guild) else '關閉'}")
-
-async def clock_func(clock: MaiClock):
-    channel = bot.get_channel(clock.channel_id)
-    await channel.send(f"{clock.content}")
-
-def SolveCmd(cmd, channel_id):
-    if cmd:
-        new_mai_clock(
-            int(cmd["id"]),
-            cmd["time"],
-            cmd["date"],
-            cmd["content"],
-            channel_id,
-            clock_func
-        )
 
 if __name__ == "__main__":
     bot.run(f"{env.bot_key}")

@@ -37,8 +37,10 @@ class Mai:
 
         self.histories: dict[int, list[types.Content]] = {}
     
-    async def send(self, message, guild_id):
+    async def send(self, message):
         try:
+            guild_id = message.guild.id
+            
             self.chat.history = self.histories[guild_id]
 
             message_no_prefix = list(str(message.content).split(" "))[1:]
