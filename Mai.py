@@ -17,37 +17,37 @@ class Mai:
         self.bot = bot
         self.time_zone = timezone(offset=timedelta(hours=UtcOffset))
         self.client = genai.Client(api_key=f"{env.gemini_api_key}")
-        self.chat = self.client.chats.create(
-            model = UseModel,
-            config = types.GenerateContentConfig(
-                system_instruction = [
-                    SystemPrompt
-                ],
-                thinking_config=types.ThinkingConfig(thinking_budget=0),
-                temperature = 0.7,
-                max_output_tokens = 500,
-                safety_settings = [
-                    types.SafetySetting(
-                        category = types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-                        threshold = types.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE
-                    )
-                ]
-            )
-        )
 
         self.histories: dict[int, list[types.Content]] = {}
     
     async def send(self, message):
         try:
             guild_id = message.guild.id
-            
-            self.chat.history = self.get_history(guild_id)
 
+            chat = self.client.chats.create(
+                model = UseModel,
+                config = types.GenerateContentConfig(
+                    system_instruction = [
+                        SystemPrompt
+                    ],
+                    thinking_config=types.ThinkingConfig(thinking_budget=0),
+                    temperature = 0.7,
+                    max_output_tokens = 500,
+                    safety_settings = [
+                        types.SafetySetting(
+                            category = types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                            threshold = types.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE
+                        )
+                    ]
+                ),
+                history=self.get_history(guild_id)
+            )
+            
             message_no_prefix = list(str(message.content).split(" "))[1:]
             message_no_prefix = " ".join(message_no_prefix)
-            message_str = f"{datetime.now(tz=self.time_zone).strftime('%Y-%m-%d %H:%M')} {message.author}: {message_no_prefix}"
+            message_str = f"time:{datetime.now(tz=self.time_zone).strftime('%Y-%m-%d %H:%M')} author:{message.author} message:{message_no_prefix}"
 
-            response = self.chat.send_message(message_str)
+            response = chat.send_message(message_str)
 
             response_json = json.loads(response.text)
             response_text = response_json["text"]
@@ -65,6 +65,7 @@ class Mai:
             else:
                 print("unknow API err", file=stderr)
                 print(e, file=stderr)
+                await message.channel.send("你說什麼？我剛剛沒聽清楚。")
             return
         except json.JSONDecodeError as e:
             print(f"json err\nresponse text:\n{response.text}", file=stderr)
