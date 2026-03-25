@@ -56,7 +56,8 @@ class Mai:
 
             if "cmd" in response_json:
                 response_cmd = response_json["cmd"]
-                self.SolveCmd(response_cmd, message.channel.id)
+                if type(response_cmd) is list:
+                    self.solve_cmd(response_cmd, message.channel.id)
 
             await message.channel.send(response_text)
         except APIError as e:
@@ -75,13 +76,13 @@ class Mai:
             print(f"message: {message_str}", file=stderr)
             return
     
-    def SolveCmd(self, cmd, channel_id):
-        if cmd:
+    def solve_cmd(self, cmd: list[dict], channel_id):
+        for action in cmd:
             new_mai_clock(
-                int(cmd["id"]),
-                cmd["time"],
-                cmd["date"],
-                cmd["content"],
+                int(action["id"]),
+                action["time"],
+                action["date"],
+                action["content"],
                 channel_id,
                 self.clock_func
             )
